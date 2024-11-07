@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 sys.exit(0)
 
             if image_path == "":
-                image_path = "../Images/passport-sample.jpg"
+                image_path = "../images/passport-sample.jpg"
 
             if not os.path.exists(image_path):
                 print("The image path does not exist.")

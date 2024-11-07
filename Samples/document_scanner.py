@@ -20,12 +20,12 @@ if __name__ == '__main__':
                 sys.exit(0)
 
             if image_path == "":
-                image_path = "../Images/document-sample.jpg"
+                image_path = "../images/document-sample.jpg"
 
             if not os.path.exists(image_path):
                 print("The image path does not exist.")
                 continue
-            result = cvr.capture(image_path, EnumPresetTemplate.PT_DETECT_AND_NORMALIZE_DOCUMENT.value)
+            result = cvr.capture(image_path, EnumPresetTemplate.PT_DETECT_AND_NORMALIZE_DOCUMENT)
             if result.get_error_code() != EnumErrorCode.EC_OK:
                 print("Error:", result.get_error_code(), result.get_error_string())
             normalized_images_result = result.get_normalized_images_result()
