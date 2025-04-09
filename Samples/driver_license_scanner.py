@@ -18,42 +18,42 @@ class DriverLicenseResult:
         self.code_type = item.get_code_type()
         if self.code_type != "AAMVA_DL_ID" and self.code_type != "AAMVA_DL_ID_WITH_MAG_STRIPE" and self.code_type != "SOUTH_AFRICA_DL":
             return
-        if item.get_field_value("licenseNumber") != None and item.get_field_validation_status("licenseNumber") != EnumValidationStatus.VS_FAILED:  
+        if item.get_field_value("licenseNumber") != None and item.get_field_validation_status("licenseNumber") != EnumValidationStatus.VS_FAILED:
             self.license_number = item.get_field_value("licenseNumber")
-        
+
         if item.get_field_value("AAMVAVersionNumber") != None and item.get_field_validation_status("AAMVAVersionNumber") != EnumValidationStatus.VS_FAILED:
             self.version_number = item.get_field_value("AAMVAVersionNumber")
-        
+
         if item.get_field_value("vehicleClass") != None and item.get_field_validation_status("vehicleClass") != EnumValidationStatus.VS_FAILED:
             self.vehicle_class = item.get_field_value("vehicleClass")
-        
+
         if item.get_field_value("lastName") != None and item.get_field_validation_status("lastName") != EnumValidationStatus.VS_FAILED:
             self.last_name = item.get_field_value("lastName")
-        
+
         if item.get_field_value("surName") != None and item.get_field_validation_status("surName") != EnumValidationStatus.VS_FAILED:
             self.last_name = item.get_field_value("surName")
-        
+
         if item.get_field_value("givenName") != None and item.get_field_validation_status("givenName") != EnumValidationStatus.VS_FAILED:
             self.given_name = item.get_field_value("givenName")
-        
+
         if item.get_field_value("fullName") != None and item.get_field_validation_status("fullName") != EnumValidationStatus.VS_FAILED:
             self.full_name = item.get_field_value("fullName")
-        
+
         if item.get_field_value("sex") != None and item.get_field_validation_status("sex") != EnumValidationStatus.VS_FAILED:
             self.gender = item.get_field_value("sex")
-        
+
         if item.get_field_value("gender") != None and item.get_field_validation_status("gender") != EnumValidationStatus.VS_FAILED:
             self.gender = item.get_field_value("gender")
-        
+
         if item.get_field_value("birthDate") != None and item.get_field_validation_status("birthDate") != EnumValidationStatus.VS_FAILED:
             self.birth_date = item.get_field_value("birthDate")
-        
+
         if item.get_field_value("issuedDate") != None and item.get_field_validation_status("issuedDate") != EnumValidationStatus.VS_FAILED:
             self.issued_date = item.get_field_value("issuedDate")
-        
+
         if item.get_field_value("expirationDate") != None and item.get_field_validation_status("expirationDate") != EnumValidationStatus.VS_FAILED:
             self.expiration_date = item.get_field_value("expirationDate")
-                
+
         if self.full_name is None:
             self.full_name = (self.last_name or "") +((' ' + self.given_name) if self.last_name and self.given_name else (self.given_name or ''))
 
@@ -75,7 +75,7 @@ def print_results(result: ParsedResult) -> None:
     tag = result.get_original_image_tag()
     if isinstance(tag, FileImageTag):
         print("File:", tag.get_file_path())
-    if result.get_error_code() != EnumErrorCode.EC_OK:
+    if result.get_error_code() != EnumErrorCode.EC_OK and result.get_error_code()!= EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
         print("Error:", result.get_error_string())
     else:
         items = result.get_items()
@@ -85,7 +85,7 @@ def print_results(result: ParsedResult) -> None:
             print(dlResult.to_string())
 
 if __name__ == '__main__':
-    
+
     print("**********************************************************")
     print("Welcome to Dynamsoft Capture Vision - DriverLicense Sample")
     print("**********************************************************")
@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 ">> Input your image full path:\n"
                 ">> 'Enter' for sample image or 'Q'/'q' to quit\n"
             ).strip('\'"')
-          
+
             if image_path.lower() == "q":
                 sys.exit(0)
 
@@ -113,13 +113,21 @@ if __name__ == '__main__':
             if not os.path.exists(image_path):
                 print("The image path does not exist.")
                 continue
-            result = cvr_instance.capture(image_path, "ReadDriversLicense")
-            if result.get_error_code() != EnumErrorCode.EC_OK:
-                print("Error:", result.get_error_code(), result.get_error_string())
+            result_array = cvr_instance.capture_multi_pages(image_path, "ReadDriversLicense")
+            results = result_array.get_results()
+            if results is None or len(results) == 0:
+                print("No results.")
             else:
-                parsed_result = result.get_parsed_result()
-                if parsed_result is None or len(parsed_result.get_items()) == 0:
-                    print("No parsed results.")
-                else:
-                    print_results(parsed_result)
+                for i, result in enumerate(results):
+                    if result.get_error_code() == EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
+                        print("Warning:", result.get_error_code(), result.get_error_string())
+                    elif result.get_error_code() != EnumErrorCode.EC_OK:
+                        print("Error:", result.get_error_code(), result.get_error_string())
+                    parsed_result = result.get_parsed_result()
+
+                    if parsed_result is None or len(parsed_result.get_items()) == 0:
+                        print("Page-"+str(i+1), "No parsed results.")
+                    else:
+                        print_results(parsed_result)
+                    print()
     input("Press Enter to quit...")

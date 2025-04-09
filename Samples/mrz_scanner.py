@@ -36,7 +36,7 @@ class MRZResult:
             if item.get_field_validation_status("line3") == EnumValidationStatus.VS_FAILED:
                 line += ", Validation Failed"
             self.raw_text.append(line)
-        
+
         if item.get_field_value("nationality") != None and item.get_field_validation_status("nationality") != EnumValidationStatus.VS_FAILED:
             self.nationality = item.get_field_value("nationality")
         if item.get_field_value("issuingState") != None and item.get_field_validation_status("issuingState") != EnumValidationStatus.VS_FAILED:
@@ -70,8 +70,8 @@ def print_results(result: ParsedResult) -> None:
     tag = result.get_original_image_tag()
     if isinstance(tag, FileImageTag):
         print("File:", tag.get_file_path())
-    if result.get_error_code() != EnumErrorCode.EC_OK:
-        print("Error:", result.get_error_string())        
+    if result.get_error_code() != EnumErrorCode.EC_OK and result.get_error_code()!= EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
+        print("Error:", result.get_error_string())
     else:
         items = result.get_items()
         print("Parsed", len(items), "MRZ Zones.")
@@ -80,7 +80,7 @@ def print_results(result: ParsedResult) -> None:
             print(mrz_result.to_string())
 
 if __name__ == '__main__':
-    
+
     print("**********************************************************")
     print("Welcome to Dynamsoft Capture Vision - MRZ Sample")
     print("**********************************************************")
@@ -108,13 +108,21 @@ if __name__ == '__main__':
             if not os.path.exists(image_path):
                 print("The image path does not exist.")
                 continue
-            result = cvr_instance.capture(image_path, "ReadPassportAndId")
-            if result.get_error_code() != EnumErrorCode.EC_OK:
-                print("Error:", result.get_error_code(), result.get_error_string())
+            result_array = cvr_instance.capture_multi_pages(image_path, "ReadPassportAndId")
+            results = result_array.get_results()
+            if results is None or len(results) == 0:
+                print("No results.")
             else:
-                parsed_result = result.get_parsed_result()
-                if parsed_result is None or len(parsed_result.get_items()) == 0:
-                    print("No parsed results.")
-                else:
-                    print_results(parsed_result)
+                for i, result in enumerate(results):
+                    if result.get_error_code() == EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
+                        print("Warning:", result.get_error_code(), result.get_error_string())
+                    elif result.get_error_code() != EnumErrorCode.EC_OK:
+                        print("Error:", result.get_error_code(), result.get_error_string())
+                    parsed_result = result.get_parsed_result()
+
+                    if parsed_result is None or len(parsed_result.get_items()) == 0:
+                        print("Page-"+str(i+1), "No parsed results.")
+                    else:
+                        print_results(parsed_result)
+                    print()
     input("Press Enter to quit...")

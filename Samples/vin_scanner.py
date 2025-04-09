@@ -20,21 +20,21 @@ class VINResult:
             if(item.get_field_validation_status("vinString")==EnumValidationStatus.VS_FAILED):
                 self.vin_string += ", Validation Failed"
 
-        if item.get_field_value("WMI") != None and item.get_field_validation_status("WMI") != EnumValidationStatus.VS_FAILED:  
+        if item.get_field_value("WMI") != None and item.get_field_validation_status("WMI") != EnumValidationStatus.VS_FAILED:
             self.wmi = item.get_field_value("WMI")
-        
+
         if item.get_field_value("region") != None and item.get_field_validation_status("region") != EnumValidationStatus.VS_FAILED:
             self.region = item.get_field_value("region")
-        
+
         if item.get_field_value("VDS") != None and item.get_field_validation_status("VDS") != EnumValidationStatus.VS_FAILED:
             self.vds = item.get_field_value("VDS")
-        
+
         if item.get_field_value("VIS") != None and item.get_field_validation_status("VIS") != EnumValidationStatus.VS_FAILED:
             self.vis = item.get_field_value("VIS")
-        
+
         if item.get_field_value("modelYear") != None and item.get_field_validation_status("modelYear") != EnumValidationStatus.VS_FAILED:
             self.model_year = item.get_field_value("modelYear")
-        
+
         if item.get_field_value("plantCode") != None and item.get_field_validation_status("plantCode") != EnumValidationStatus.VS_FAILED:
             self.plant_code = item.get_field_value("plantCode")
 
@@ -52,8 +52,8 @@ def print_results(result: ParsedResult) -> None:
     tag = result.get_original_image_tag()
     if isinstance(tag, FileImageTag):
         print("File:", tag.get_file_path())
-    if result.get_error_code() != EnumErrorCode.EC_OK:
-        print("Error:", result.get_error_string())        
+    if result.get_error_code() != EnumErrorCode.EC_OK and result.get_error_code()!= EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
+        print("Error:", result.get_error_string())
     else:
         items = result.get_items()
         print("Parsed", len(items), "VIN codes.")
@@ -62,7 +62,7 @@ def print_results(result: ParsedResult) -> None:
             print(vin_result.to_string())
 
 if __name__ == '__main__':
-    
+
     print("**********************************************************")
     print("Welcome to Dynamsoft Capture Vision - VIN Sample")
     print("**********************************************************")
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             if image_path == "":
                 print("Invalid path.")
                 continue
-            
+
             if image_path.lower() == "q":
                 sys.exit(0)
 
@@ -99,13 +99,21 @@ if __name__ == '__main__':
                 except ValueError:
                     continue
 
-            result = cvr_instance.capture(image_path, template_name)
-            if result.get_error_code() != EnumErrorCode.EC_OK:
-                print("Error:", result.get_error_code(), result.get_error_string())
+            result_array = cvr_instance.capture_multi_pages(image_path, template_name)
+            results = result_array.get_results()
+            if results is None or len(results) == 0:
+                print("No results.")
             else:
-                parsed_result = result.get_parsed_result()
-                if parsed_result is None or len(parsed_result.get_items()) == 0:
-                    print("No parsed results.")
-                else:
-                    print_results(parsed_result)
+                for i, result in enumerate(results):
+                    if result.get_error_code() == EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
+                        print("Warning:", result.get_error_code(), result.get_error_string())
+                    elif result.get_error_code() != EnumErrorCode.EC_OK:
+                        print("Error:", result.get_error_code(), result.get_error_string())
+                    parsed_result = result.get_parsed_result()
+
+                    if parsed_result is None or len(parsed_result.get_items()) == 0:
+                        print("Page-"+str(i+1), "No parsed results.")
+                    else:
+                        print_results(parsed_result)
+                    print()
     input("Press Enter to quit...")
