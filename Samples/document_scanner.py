@@ -9,7 +9,7 @@ if __name__ == '__main__':
     if errorCode != EnumErrorCode.EC_OK and errorCode != EnumErrorCode.EC_LICENSE_CACHE_USED:
         print("License initialization failed: ErrorCode:", errorCode, ", ErrorString:", errorMsg)
     else:
-        cvr = CaptureVisionRouter()
+        cvr_instance = CaptureVisionRouter()
         while (True):
             image_path = input(
                 ">> Input your image full path:\n"
@@ -25,7 +25,7 @@ if __name__ == '__main__':
             if not os.path.exists(image_path):
                 print("The image path does not exist.")
                 continue
-            result_array = cvr.capture_multi_pages(image_path, EnumPresetTemplate.PT_DETECT_AND_NORMALIZE_DOCUMENT)
+            result_array = cvr_instance.capture_multi_pages(image_path, EnumPresetTemplate.PT_DETECT_AND_NORMALIZE_DOCUMENT)
             results = result_array.get_results()
             if results is None or len(results) == 0:
                 print("No document found.")
