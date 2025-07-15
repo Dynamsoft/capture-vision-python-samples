@@ -29,13 +29,13 @@ This repository contains multiple samples that demonstrate how to use the [Dynam
 ## Installation
 
 ```
-pip install dynamsoft_capture_vision_bundle
+pip install dynamsoft-capture-vision-bundle
 ```
 
 or 
 
 ```
-pip3 install dynamsoft_capture_vision_bundle
+pip3 install dynamsoft-capture-vision-bundle
 ```
 
 ## Samples
@@ -46,6 +46,7 @@ pip3 install dynamsoft_capture_vision_bundle
 |[`DriverLicenseScanner`](Samples/driver_license_scanner.py)          | Capture and extract user's information from driver license/ID with Dynamsoft Capture Vision SDK.            |
 |[`VINScanner`](Samples/vin_scanner.py)          | Capture and extract vehicle's information from Vehicle Identification Number (VIN) with Dynamsoft Capture Vision SDK.            |
 |[`DocumentScanner`](Samples/document_scanner.py)          | The simplest way to detect and normalize a document from an image and save the result as a new image.            |
+|[`GS1AIScanner`](Samples/gs1_ai_scanner.py) | Shows how to extract and interpret GS1 Application Identifiers (AIs) from GS1 barcodes. |
 
 ## Documentation
 
