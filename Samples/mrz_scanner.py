@@ -97,7 +97,7 @@ if __name__ == '__main__':
             image_path = input(
                 ">> Input your image full path:\n"
                 ">> 'Enter' for sample image or 'Q'/'q' to quit\n"
-            ).strip('\'"')
+            ).strip(' \'"')
 
             if image_path.lower() == "q":
                 sys.exit(0)

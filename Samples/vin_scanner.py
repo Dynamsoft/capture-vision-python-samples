@@ -76,7 +76,7 @@ if __name__ == '__main__':
     else:
         cvr_instance = CaptureVisionRouter()
         while (True):
-            image_path = input(">> Enter the image path (or 'Q'/'q' to quit):").strip('\'"')
+            image_path = input(">> Enter the image path (or 'Q'/'q' to quit):").strip(' \'"')
             if image_path == "":
                 print("Invalid path.")
                 continue
