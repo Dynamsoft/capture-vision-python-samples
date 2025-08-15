@@ -36,13 +36,13 @@ if __name__ == '__main__':
                     elif result.get_error_code() != EnumErrorCode.EC_OK:
                         print("Error:", result.get_error_code(), result.get_error_string())
                     processed_document_result = result.get_processed_document_result()
-                    if processed_document_result is None or len(processed_document_result.get_deskewed_image_result_items()) == 0:
+                    if processed_document_result is None or len(processed_document_result.get_enhanced_image_result_items()) == 0:
                         print("Page-"+str(i+1), "No document found.")
                     else:
-                        items = processed_document_result.get_deskewed_image_result_items()
-                        print("Page-"+str(i+1), "Deskewed", len(items), "documents.")
+                        items = processed_document_result.get_enhanced_image_result_items()
+                        print("Page-"+str(i+1), "Enhanced", len(items), "documents.")
                         for index,item in enumerate(items):
-                            out_path = "Page_"+str(i+1)+"_deskewedResult_" + str(index) + ".png"
+                            out_path = "Page_"+str(i+1)+"_enhancedResult_" + str(index) + ".png"
                             image_io = ImageIO()
                             image = item.get_image_data()
                             if image != None:
