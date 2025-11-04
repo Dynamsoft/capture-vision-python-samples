@@ -31,18 +31,22 @@ if __name__ == '__main__':
                 print("No document found.")
             else:
                 for i, result in enumerate(results):
+                    page_number = i + 1
+                    tag = result.get_original_image_tag()
+                    if isinstance(tag, FileImageTag):
+                        page_number = tag.get_page_number() + 1
                     if result.get_error_code() == EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
                         print("Warning:", result.get_error_code(), result.get_error_string())
                     elif result.get_error_code() != EnumErrorCode.EC_OK:
                         print("Error:", result.get_error_code(), result.get_error_string())
                     processed_document_result = result.get_processed_document_result()
                     if processed_document_result is None or len(processed_document_result.get_enhanced_image_result_items()) == 0:
-                        print("Page-"+str(i+1), "No document found.")
+                        print("Page-"+str(page_number), "No document found.")
                     else:
                         items = processed_document_result.get_enhanced_image_result_items()
-                        print("Page-"+str(i+1), "Enhanced", len(items), "documents.")
+                        print("Page-"+str(page_number), "Enhanced", len(items), "documents.")
                         for index,item in enumerate(items):
-                            out_path = "Page_"+str(i+1)+"_enhancedResult_" + str(index) + ".png"
+                            out_path = "Page_"+str(page_number)+"_enhancedResult_" + str(index) + ".png"
                             image_io = ImageIO()
                             image = item.get_image_data()
                             if image != None:

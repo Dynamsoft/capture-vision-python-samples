@@ -114,6 +114,10 @@ if __name__ == '__main__':
                 print("No results.")
             else:
                 for i, result in enumerate(results):
+                    page_number = i + 1
+                    tag = result.get_original_image_tag()
+                    if isinstance(tag, FileImageTag):
+                        page_number = tag.get_page_number() + 1
                     if result.get_error_code() == EnumErrorCode.EC_UNSUPPORTED_JSON_KEY_WARNING:
                         print("Warning:", result.get_error_code(), result.get_error_string())
                     elif result.get_error_code() != EnumErrorCode.EC_OK:
@@ -121,7 +125,7 @@ if __name__ == '__main__':
                     parsed_result = result.get_parsed_result()
 
                     if parsed_result is None or len(parsed_result.get_items()) == 0:
-                        print("Page-"+str(i+1), "No parsed results.")
+                        print("Page-"+str(page_number), "No parsed results.")
                     else:
                         print_results(parsed_result)
                     print()
