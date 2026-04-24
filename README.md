@@ -44,7 +44,6 @@ pip3 install dynamsoft-capture-vision-bundle
 | ----------- | ----------- |
 |[`MRZScanner`](Samples/mrz_scanner.py)          | Capture and extract user's information from machine-readable travel documents with Dynamsoft Capture Vision SDK.            |
 |[`DriverLicenseScanner`](Samples/driver_license_scanner.py)          | Capture and extract user's information from driver license/ID with Dynamsoft Capture Vision SDK.            |
-|[`VINScanner`](Samples/vin_scanner.py)          | Capture and extract vehicle's information from Vehicle Identification Number (VIN) with Dynamsoft Capture Vision SDK.            |
 |[`DocumentScanner`](Samples/document_scanner.py)          | The simplest way to detect and normalize a document from an image and save the result as a new image.            |
 |[`GS1AIScanner`](Samples/gs1_ai_scanner.py) | Shows how to extract and interpret GS1 Application Identifiers (AIs) from GS1 barcodes. |
 
