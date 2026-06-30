@@ -5,75 +5,6 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
-class DriverLicenseResult:
-
-    def __init__(self, item: ParsedResultItem):
-        self.license_number = None
-        self.version_number = None
-        self.vehicle_class = None
-        self.last_name = None
-        self.given_name = None
-        self.gender = None
-        self.birth_date = None
-        self.issued_date = None
-        self.expiration_date = None
-        self.full_name = None
-        self.code_type = item.get_code_type()
-        if self.code_type != "AAMVA_DL_ID" and self.code_type != "AAMVA_DL_ID_WITH_MAG_STRIPE" and self.code_type != "SOUTH_AFRICA_DL":
-            return
-        if item.get_field_value("licenseNumber") != None and item.get_field_validation_status("licenseNumber") != EnumValidationStatus.VS_FAILED:
-            self.license_number = item.get_field_value("licenseNumber")
-
-        if item.get_field_value("AAMVAVersionNumber") != None and item.get_field_validation_status("AAMVAVersionNumber") != EnumValidationStatus.VS_FAILED:
-            self.version_number = item.get_field_value("AAMVAVersionNumber")
-
-        if item.get_field_value("vehicleClass") != None and item.get_field_validation_status("vehicleClass") != EnumValidationStatus.VS_FAILED:
-            self.vehicle_class = item.get_field_value("vehicleClass")
-
-        if item.get_field_value("lastName") != None and item.get_field_validation_status("lastName") != EnumValidationStatus.VS_FAILED:
-            self.last_name = item.get_field_value("lastName")
-
-        if item.get_field_value("surName") != None and item.get_field_validation_status("surName") != EnumValidationStatus.VS_FAILED:
-            self.last_name = item.get_field_value("surName")
-
-        if item.get_field_value("givenName") != None and item.get_field_validation_status("givenName") != EnumValidationStatus.VS_FAILED:
-            self.given_name = item.get_field_value("givenName")
-
-        if item.get_field_value("fullName") != None and item.get_field_validation_status("fullName") != EnumValidationStatus.VS_FAILED:
-            self.full_name = item.get_field_value("fullName")
-
-        if item.get_field_value("sex") != None and item.get_field_validation_status("sex") != EnumValidationStatus.VS_FAILED:
-            self.gender = item.get_field_value("sex")
-
-        if item.get_field_value("gender") != None and item.get_field_validation_status("gender") != EnumValidationStatus.VS_FAILED:
-            self.gender = item.get_field_value("gender")
-
-        if item.get_field_value("birthDate") != None and item.get_field_validation_status("birthDate") != EnumValidationStatus.VS_FAILED:
-            self.birth_date = item.get_field_value("birthDate")
-
-        if item.get_field_value("issuedDate") != None and item.get_field_validation_status("issuedDate") != EnumValidationStatus.VS_FAILED:
-            self.issued_date = item.get_field_value("issuedDate")
-
-        if item.get_field_value("expirationDate") != None and item.get_field_validation_status("expirationDate") != EnumValidationStatus.VS_FAILED:
-            self.expiration_date = item.get_field_value("expirationDate")
-
-        if self.full_name is None:
-            self.full_name = (self.last_name or "") +((' ' + self.given_name) if self.last_name and self.given_name else (self.given_name or ''))
-
-    def to_string(self):
-        return (f"Parsed Information:\n"
-            f"\tCode Type: {self.code_type or ''}\n"
-            f"\tLicense Number: {self.license_number or ''}\n"
-            f"\tVehicle Class: {self.vehicle_class or ''}\n"
-            f"\tLast Name: {self.last_name or ''}\n"
-            f"\tGiven Name: {self.given_name or ''}\n"
-            f"\tFull Name: {self.full_name or ''}\n"
-            f"\tGender: {self.gender or ''}\n"
-            f"\tDate of Birth: {self.birth_date or ''}\n"
-            f"\tIssued Date: {self.issued_date or ''}\n"
-            f"\tExpiration Date: {self.expiration_date or ''}\n")
-
-
 def print_results(result: ParsedResult) -> None:
     tag = result.get_original_image_tag()
     if isinstance(tag, FileImageTag):
@@ -84,9 +15,74 @@ def print_results(result: ParsedResult) -> None:
         items = result.get_items()
         print("Parsed", len(items), "Driver License(s).")
         for item in items:
-            dlResult = DriverLicenseResult(item)
-            print(dlResult.to_string())
+            code_type = item.get_code_type()
+            print_data = []
+            if code_type == "AAMVA_DL_ID":
+                # For full field list and details, please refer to the documentation:
+                # https://www.dynamsoft.com/code-parser/docs/core/code-types/aamva-dl-id.html?lang=python#aamva_dl_id-fields
 
+                if item.get_field_value("licenseNumber") != None and item.get_field_validation_status("licenseNumber") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("License Number: ", item.get_field_value("licenseNumber")))
+                if item.get_field_value("vehicleClass") != None and item.get_field_validation_status("vehicleClass") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Vehicle Class: ", item.get_field_value("vehicleClass")))
+                full_name = None
+                if item.get_field_value("fullName") != None and item.get_field_validation_status("fullName") != EnumValidationStatus.VS_FAILED:
+                    full_name = item.get_field_value("fullName")
+                elif item.get_field_value("givenName") != None and item.get_field_validation_status("givenName") != EnumValidationStatus.VS_FAILED:
+                    full_name = item.get_field_value("givenName")
+                    if item.get_field_value("lastName") != None and item.get_field_validation_status("lastName") != EnumValidationStatus.VS_FAILED:
+                        full_name += " " + item.get_field_value("lastName")
+                elif item.get_field_value("firstName") != None and item.get_field_validation_status("firstName") != EnumValidationStatus.VS_FAILED:
+                    full_name = item.get_field_value("firstName")
+                    if item.get_field_value("middleName") != None and item.get_field_validation_status("middleName") != EnumValidationStatus.VS_FAILED:
+                        full_name += " " + item.get_field_value("middleName")
+                    if item.get_field_value("lastName") != None and item.get_field_validation_status("lastName") != EnumValidationStatus.VS_FAILED:
+                        full_name += " " + item.get_field_value("lastName")
+                if full_name != None:
+                    print_data.append(("Full Name: ", full_name))
+                if item.get_field_value("sex") != None and item.get_field_validation_status("sex") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Sex: ", item.get_field_value("sex")))
+                if item.get_field_value("expirationDate") != None and item.get_field_validation_status("expirationDate") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Expiration Date: ", item.get_field_value("expirationDate")))
+            elif code_type == "AAMVA_DL_ID_WITH_MAG_STRIPE":
+                # For full field list and details, please refer to the documentation:
+                # https://www.dynamsoft.com/code-parser/docs/core/code-types/aamva-dl-id.html?lang=python#aamva_dl_id_with_mag_stripe-fields
+
+                if item.get_field_value("DLorID_Number") != None and item.get_field_validation_status("DLorID_Number") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("License Number: ", item.get_field_value("DLorID_Number")))
+                if item.get_field_value("ISOIIN") != None and item.get_field_validation_status("ISOIIN") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("ISO IIN: ", item.get_field_value("ISOIIN")))
+                if item.get_field_value("name") != None and item.get_field_validation_status("name") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Name: ", item.get_field_value("name")))
+                if item.get_field_value("sex") != None and item.get_field_validation_status("sex") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Sex: ", item.get_field_value("sex")))
+                if item.get_field_value("expirationDate") != None and item.get_field_validation_status("expirationDate") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Expiration Date: ", item.get_field_value("expirationDate")))
+            elif code_type == "SOUTH_AFRICA_DL":
+                # For full field list and details, please refer to the documentation:
+                # https://www.dynamsoft.com/code-parser/docs/core/code-types/za-dl.html?lang=python#fields
+
+                if item.get_field_value("idNumber") != None and item.get_field_validation_status("idNumber") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("ID Number: ", item.get_field_value("idNumber")))
+                if item.get_field_value("licenseNumber") != None and item.get_field_validation_status("licenseNumber") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("License Number: ", item.get_field_value("licenseNumber")))
+                if item.get_field_value("vehicleLicense") != None and item.get_field_validation_status("vehicleLicense") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Vehicle License: ", item.get_field_value("vehicleLicense")))
+                full_name = None
+                if item.get_field_value("surname") != None and item.get_field_validation_status("surname") != EnumValidationStatus.VS_FAILED:
+                    full_name = item.get_field_value("surname")
+                    if item.get_field_value("initials") != None and item.get_field_validation_status("initials") != EnumValidationStatus.VS_FAILED:
+                        full_name += " " + item.get_field_value("initials")
+                if full_name != None:
+                    print_data.append(("Name: ", full_name))
+                if item.get_field_value("gender") != None and item.get_field_validation_status("gender") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("Gender: ", item.get_field_value("gender")))
+                if item.get_field_value("licenseValidityTo") != None and item.get_field_validation_status("licenseValidityTo") != EnumValidationStatus.VS_FAILED:
+                    print_data.append(("License Valid To: ", item.get_field_value("licenseValidityTo")))
+            print("Parsed Information:")
+            for data in print_data:
+                print("\t" + data[0], data[1])
+            print()
 if __name__ == '__main__':
 
     print("**********************************************************")
