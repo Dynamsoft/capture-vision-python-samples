@@ -10,12 +10,25 @@
 
 This repository contains multiple samples that demonstrate how to use the [Dynamsoft Capture Vision](https://www.dynamsoft.com/capture-vision/docs/core/introduction/?lang=python) Python Edition.
 
-## Requirements
+## System Requirements
 
 ### Supported Platforms
-- Windows x64
-- Linux (x64, ARM64)
-- macOS (10.15+)
+
+**Windows**
+- Supported Versions: Windows 8 and higher, or Windows Server 2012 and higher
+- Architectures: x64
+
+**Linux**
+- **x64**
+	- Supported Distributions: Ubuntu 16.04+ LTS, Debian 8+, CentOS 7+
+	- Dependencies: glibc 2.17
+- **ARM64**
+	- Supported Distributions: Ubuntu 18.04+ LTS, Debian 10+, CentOS/RHEL 8+
+	- Dependencies: glibc 2.27
+
+**macOS**
+- Supported Versions: macOS 12 (Monterey) and higher
+- Architectures: universal (x64, Apple Silicon)
 
 ### Supported Python Versions
 
@@ -24,7 +37,8 @@ This repository contains multiple samples that demonstrate how to use the [Dynam
 - Python 3.12
 - Python 3.11
 - Python 3.10
-
+- Python 3.9
+- Python 3.8
 
 ## Installation
 
